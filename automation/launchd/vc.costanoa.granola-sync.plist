@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>vc.costanoa.granola-sync</string>
+
+  <!-- Run claude in non-interactive mode against the /granola-sync skill.
+       Requires Claude Code CLI installed at /opt/homebrew/bin/claude (Apple
+       Silicon Homebrew) or /usr/local/bin/claude (Intel). Adjust if needed. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/claude</string>
+    <string>-p</string>
+    <string>/granola-sync</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/seancai/CostanoaData</string>
+
+  <!-- Daily at 7am local time. launchd will fire on next wake if the
+       laptop was asleep when the trigger came due. -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>7</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/Users/seancai/CostanoaData/automation/launchd/sync.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/seancai/CostanoaData/automation/launchd/sync.err.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

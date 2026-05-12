@@ -1,0 +1,14 @@
+{
+  "name": "costanoa-data",
+  "owner": {
+    "name": "Costanoa Ventures",
+    "email": "sean@costanoa.vc"
+  },
+  "plugins": [
+    {
+      "name": "costanoa-data",
+      "source": "./",
+      "description": "Granola → Supabase sync for the Costanoa team knowledge base"
+    }
+  ]
+}

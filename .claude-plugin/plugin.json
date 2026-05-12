@@ -1,0 +1,11 @@
+{
+  "name": "costanoa-data",
+  "version": "0.1.0",
+  "description": "Costanoa Ventures shared meeting knowledge base. Syncs Granola notes to a team-shared Supabase, attributed per VC. Includes /granola-sync and /team-onboard skills.",
+  "author": {
+    "name": "Costanoa Ventures",
+    "email": "sean@costanoa.vc"
+  },
+  "homepage": "https://github.com/SeanZCai/costanoa-data",
+  "repository": "https://github.com/SeanZCai/costanoa-data"
+}

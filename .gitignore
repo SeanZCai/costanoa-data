@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+automation/launchd/*.log
+*.log
+/tmp/*
+
+# Per-user state (never commit; teammates have their own)
+~/.costanoa-data/

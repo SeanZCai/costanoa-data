@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Costanoa Meeting Knowledge Base — Setup</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --ink: #1f2630;
+    --muted: #5b6470;
+    --accent: #3d6b4a;
+    --accent-soft: #e7efe9;
+    --rule: #e6e4dc;
+    --code-bg: #f3f1ea;
+    --warn-bg: #fff7e0;
+    --warn-bd: #e8d68a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    font-size: 16px;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 28px 96px;
+  }
+  header.hero {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .lede {
+    color: var(--muted);
+    font-size: 17px;
+    margin: 0;
+  }
+  h2 {
+    font-size: 19px;
+    margin: 40px 0 12px;
+    letter-spacing: -0.005em;
+  }
+  h3 {
+    font-size: 15px;
+    margin: 24px 0 6px;
+    color: var(--ink);
+  }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 4px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+  a:hover { opacity: 0.8; }
+  code {
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13.5px;
+  }
+  pre {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 8px 0 18px;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+  .step-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .step-num {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .step-title {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .step-time {
+    color: var(--muted);
+    font-size: 12px;
+    margin-left: auto;
+  }
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 16px 0;
+    font-size: 14.5px;
+  }
+  .callout strong { color: var(--accent); }
+  .warn {
+    background: var(--warn-bg);
+    border-left: 3px solid var(--warn-bd);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 16px 0;
+    font-size: 14.5px;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 560px) {
+    .options { grid-template-columns: 1fr; }
+    .wrap { padding: 32px 18px 64px; }
+    h1 { font-size: 24px; }
+  }
+  .option {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .option.preferred {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .option h3 { margin-top: 0; }
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--accent);
+    color: white;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: 2px;
+  }
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .kbd {
+    font-family: "SF Mono", Menlo, monospace;
+    background: white;
+    border: 1px solid var(--rule);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Costanoa Internal · Knowledge Base</div>
+  <h1>Send your Granola meeting notes to the team knowledge base</h1>
+  <p class="lede">One-time setup, then your meeting notes upload automatically every morning. Notes you sync are attributed to you — so queries like "all the cybersecurity founders Greg has met" actually work.</p>
+</header>
+
+<h2>What this does</h2>
+<p>
+  Every Granola meeting note you take ends up in a shared Supabase database, structured into
+  <code>companies</code>, <code>individuals</code>, and <code>meetings</code> tables. Future agents
+  query that database to answer questions across the whole team's coverage. Each row is tagged with
+  the teammate who synced it, so we can slice the data by VC.
+</p>
+<p>
+  Setup is now <strong>two commands and one paste</strong> — the plugin handles everything else.
+</p>
+
+<h2>Before you start</h2>
+<ul>
+  <li><a href="https://claude.com/claude-code">Claude Code</a> installed (<code>brew install --cask claude</code>)</li>
+  <li>Your Granola account connected as an integration in Claude (Settings → Integrations → Granola)</li>
+  <li>Python 3.10+ on your laptop (<code>python3 --version</code> should show 3.10 or higher)</li>
+  <li>Your Supabase keys from Sean (sent via 1Password — don't put them in Slack)</li>
+</ul>
+
+<h2>One-time setup</h2>
+
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">1</span>
+    <span class="step-title">Install the plugin</span>
+    <span class="step-time">~30 sec</span>
+  </div>
+  <p>In Claude Code, run these two slash commands:</p>
+<pre><code>/plugin marketplace add SeanZCai/costanoa-data
+/plugin install costanoa-data@costanoa-data</code></pre>
+  <p>This pulls down the <code>granola-sync</code> and <code>team-onboard</code> skills plus the Python sync script. The repo is private, so Claude Code will use your GitHub auth.</p>
+</div>
+
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">2</span>
+    <span class="step-title">Verify Granola is connected</span>
+    <span class="step-time">~30 sec</span>
+  </div>
+  <p>In Claude Code, ask:</p>
+<pre><code>who am I signed in as on Granola?</code></pre>
+  <p>Should return your <code>@costanoa.vc</code> email. If not, connect Granola in Settings → Integrations.</p>
+</div>
+
+<div class="step">
+  <div class="step-head">
+    <span class="step-num">3</span>
+    <span class="step-title">Run your first sync — paste keys when asked</span>
+    <span class="step-time">~3 min</span>
+  </div>
+  <p>In Claude Code:</p>
+<pre><code>/granola-sync</code></pre>
+  <p>The first run detects you haven't been set up yet and prompts you for:</p>
+  <ul>
+    <li><strong>SUPABASE_URL</strong> — paste it from the 1Password entry Sean shared.</li>
+    <li><strong>SUPABASE_SERVICE_ROLE_KEY</strong> — same source.</li>
+  </ul>
+  <p>The plugin writes both to <code>~/.costanoa-data/.env</code> (chmod 600), creates a local venv at <code>~/.costanoa-data/.venv</code>, installs the deps, and proceeds with the sync. Subsequent runs skip all that and just sync.</p>
+  <div class="warn">
+    The service role key bypasses RLS. Once pasted, it lives only in <code>~/.costanoa-data/.env</code> on your laptop — never committed, never logged. If your laptop is compromised, ask Sean to rotate the key in Supabase.
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Heads up:</strong> the first sync is the slow one — it pulls all of your meetings in the last 30 days. Daily runs after that only fetch net-new and take well under a minute. To backfill further, say <em>"sync the last 6 months"</em>.
+</div>
+
+<h2>Make it daily</h2>
+<p>Pick one. You don't need both.</p>
+
+<div class="options">
+  <div class="option preferred">
+    <h3>Option A — <code>/schedule</code><span class="tag">recommended</span></h3>
+    <p>Runs in the cloud. Your laptop doesn't need to be on.</p>
+    <p>In Claude Code:</p>
+<pre><code>/schedule create daily at 7am: /granola-sync</code></pre>
+    <p>Manage with <code>/schedule list</code> and <code>/schedule delete &lt;id&gt;</code>.</p>
+  </div>
+
+  <div class="option">
+    <h3>Option B — launchd (macOS)</h3>
+    <p>Runs locally each morning. Use this if you'd rather not keep Claude Code involved.</p>
+<pre><code>cp automation/launchd/vc.costanoa.granola-sync.plist \
+   ~/Library/LaunchAgents/
+launchctl load \
+   ~/Library/LaunchAgents/vc.costanoa.granola-sync.plist</code></pre>
+    <p>Fires daily at 7am local. Logs to <code>automation/launchd/sync.log</code>. To stop, run <code>launchctl unload</code> on the same path.</p>
+  </div>
+</div>
+
+<h2>How to verify it's working</h2>
+<ol>
+  <li>After the first sync, open the <a href="https://supabase.com/dashboard/project/lgnejbduwpytgbvtnhpr/editor">Supabase table editor</a> and look at <code>meetings</code>. You should see your meetings, with <code>created_by_team_member_id</code> pointing at your row in <code>team_members</code>.</li>
+  <li>Run <code>/granola-sync</code> a second time immediately — it should report <em>"0 new meetings"</em>. That's idempotency working.</li>
+  <li>Spot-check a meeting's <code>summary_md</code> against what you see in Granola. Should match.</li>
+</ol>
+
+<h2>What gets sent</h2>
+<ul>
+  <li>Meeting title, date, AI-generated summary, and full verbatim transcript</li>
+  <li>Attendees (name + email) and their inferred company affiliations</li>
+  <li>For 1-on-1s where Granola only captured you, a low-confidence inference of the counterparty from the meeting title (so "Jigsaw &lt;&gt; Sean" becomes a queryable link to Jigsaw)</li>
+</ul>
+<p>Meetings titled <code>"Busy"</code> or starting with <code>"Busy "</code> are skipped — they're calendar placeholders, not real meetings.</p>
+
+<h2>Joining the team roster</h2>
+<p>
+  Your first <code>/granola-sync</code> automatically registers you in the team's <code>team_members</code> table — as long as your Granola account is on a <code>@costanoa.vc</code> or <code>@costanoavc.com</code> email. Future "all founders X has met" queries find you from then on.
+</p>
+<p>
+  If you have two Costanoa emails (e.g. one on each domain), they'll merge into a single profile by matching your full name. Just make sure your Granola account name matches what's in the team roster.
+</p>
+<div class="callout">
+  <strong>Helping a new hire onboard?</strong> Use <code>/team-onboard newhire@costanoa.vc "Full Name"</code> in Claude Code to register them before they themselves have set anything up.
+</div>
+
+<h2>Keeping certain meetings out of the knowledge base</h2>
+<p>
+  Some meetings shouldn't end up in the shared DB — confidential board sessions, therapy, performance reviews, or just internal projects you don't want indexed. The sync supports a phrase-based exclusion filter that case-insensitively matches against the meeting's <strong>title, summary, and transcript</strong>. If any configured phrase appears anywhere in those three fields, that meeting is silently skipped.
+</p>
+
+<h3>For your daily automated uploads (set once)</h3>
+<p>
+  Edit <code>.env</code> and set <code>EXCLUDE_PHRASES</code> to a comma-separated list. This applies to <em>every</em> sync — manual, <code>/schedule</code> cloud cron, and the <code>launchd</code> fallback.
+</p>
+<pre><code># In .env
+EXCLUDE_PHRASES=board meeting,confidential,personal therapy,perf review</code></pre>
+<p>
+  No quotes, no spaces around the commas. Leave it empty (<code>EXCLUDE_PHRASES=</code>) for no defaults.
+</p>
+
+<h3>For a one-off manual run</h3>
+<p>
+  Just say it inline when invoking the skill:
+</p>
+<pre><code>/granola-sync excluding "standard data", "investor diligence"</code></pre>
+<p>
+  These get merged with your <code>.env</code> defaults — the union applies. The skill drops matching meetings before they're even fetched from Granola (saves API calls), and <code>sync.py</code> re-checks at insertion time as a defense-in-depth backstop.
+</p>
+
+<div class="callout">
+  <strong>How aggressive is the match?</strong> Case-insensitive substring. <code>EXCLUDE_PHRASES=acme</code> drops a meeting titled "Acme Inc &lt;&gt; Sean" but also any meeting where the summary mentions "acme" in passing. Pick phrases specific enough to avoid false positives — <code>acme followup</code> or <code>acme deep dive</code> over just <code>acme</code>.
+</div>
+
+<p>
+  The skip is silent in the DB — excluded meetings don't show up anywhere. The sync output JSON does log which IDs were excluded and which phrase matched, so you can verify after a run.
+</p>
+
+<h2>Common issues</h2>
+
+<h3>"Could not find the table 'public.meetings'"</h3>
+<p>The schema hasn't been applied to Supabase yet. Sean does this once for the team — ping him if you see this.</p>
+
+<h3>"Email ... is not a Costanoa domain"</h3>
+<p>Your Granola account is signed in with a non-Costanoa email. Switch to your <code>@costanoa.vc</code> account in Granola and re-run.</p>
+
+<h3>"who am I signed in as on Granola?" returns nothing</h3>
+<p>The Granola integration isn't connected in Claude. Open Claude Code → Settings → Integrations → Granola → Connect.</p>
+
+<h3>The launchd job doesn't fire</h3>
+<p>Check <code>which claude</code> on your laptop and compare to the path in the plist. Default is <code>/opt/homebrew/bin/claude</code> (Apple Silicon). Update <code>ProgramArguments</code> in the plist if your binary lives elsewhere.</p>
+
+<footer>
+  Questions, please send them to Sean. Anything weird in the data, also Sean.
+</footer>
+
+</div>
+</body>
+</html>
