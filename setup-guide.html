@@ -247,21 +247,20 @@
   <div class="step-head">
     <span class="step-num">3</span>
     <span class="step-title">Run your first sync (the email-code part)</span>
-    <span class="step-time">~2 to 5 minutes</span>
+    <span class="step-time">~5 to 15 minutes the first time</span>
   </div>
-  <p>Type:</p>
-<pre><code>/granola-sync</code></pre>
+  <p>For your very first sync, do the full backfill so the team has your whole history, not just the last month. Type:</p>
+<pre><code>/granola-sync-all</code></pre>
   <p>Six things happen, in order:</p>
   <ol>
     <li>Claude installs some helper files in the background. You'll see messages like "creating venv" or "installing dependencies." This takes about half a minute, and only happens on the first run.</li>
     <li>Claude asks: <em>"What's your Costanoa email?"</em> Type in your <code>@costanoa.vc</code> address.</li>
-    <li>Claude tells you to check your inbox. Supabase has just emailed you a code.</li>
-    <li>Open the email. Subject line is usually <em>"Your code is XXXXXX"</em>. If it isn't there in half a minute, check spam.</li>
+    <li>Claude tells you to check your inbox. There'll be a new message from Supabase (sender is something like <code>noreply@mail.app.supabase.io</code>) containing a 6-digit code. If you don't see it in half a minute, check spam.</li>
     <li>Copy the six digits, paste them into Claude.</li>
-    <li>Claude says "authenticated, ready" and starts pulling your last 30 days of meetings. That takes another minute or three depending on how many you have.</li>
+    <li>Claude says "authenticated, ready" and starts pulling your full Granola history. Depending on volume this can take a few minutes to about fifteen.</li>
+    <li>When it's done you'll see a count and a date range, something like <code>Backfilled 240 new meetings (earliest: Aug 2024, latest: today).</code></li>
   </ol>
-  <p>When it finishes you'll see something like:</p>
-<pre><code>Synced 47 new meetings into Supabase (latest: May 10, 2026).</code></pre>
+  <p>If you'd rather start small and just sync your last 30 days for now, use <code>/granola-sync</code> instead. You can always run <code>/granola-sync-all</code> later to fill in older meetings.</p>
   <div class="callout">
     You only do the email-code thing once. The login stays on your laptop, and the daily auto-sync (next section) uses it without bothering you.
   </div>
