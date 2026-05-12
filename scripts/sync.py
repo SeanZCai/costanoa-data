@@ -45,29 +45,143 @@ def domain_of(email: str | None) -> str | None:
     return email.split("@", 1)[1].lower()
 
 
-USER_CONFIG_ENV = Path.home() / ".costanoa-data" / ".env"
+USER_CONFIG_DIR = Path.home() / ".costanoa-data"
+USER_CONFIG_ENV = USER_CONFIG_DIR / ".env"
+USER_SESSION_FILE = USER_CONFIG_DIR / "session.json"
+
+# Import committed config (anon key, default Supabase URL). Falls back to env
+# vars if running from the source repo before the config module exists.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from supabase_config import SUPABASE_URL as _DEFAULT_URL  # noqa: E402
+    from supabase_config import SUPABASE_ANON_KEY as _DEFAULT_ANON  # noqa: E402
+except ImportError:
+    _DEFAULT_URL = None
+    _DEFAULT_ANON = None
 
 
-def load_env() -> tuple[str, str]:
-    # Per-user config (used when installed as a Claude Code plugin) wins.
-    # Falls back to the project-local .env for dev mode in the source repo.
+def load_env_files() -> None:
+    """Load any optional EXCLUDE_PHRASES / TEAM_DOMAINS / SERVICE_ROLE overrides."""
     if USER_CONFIG_ENV.exists():
         load_dotenv(USER_CONFIG_ENV)
-    else:
+    if (PROJECT_ROOT / ".env").exists():
         load_dotenv(PROJECT_ROOT / ".env")
-    url = os.environ.get("SUPABASE_URL")
-    key = (
-        os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-        or os.environ.get("SUPABASE_KEY")
-        or os.environ.get("SUPABASE_ANON_KEY")
+
+
+def get_supabase_url() -> str:
+    return os.environ.get("SUPABASE_URL") or _DEFAULT_URL or sys.exit(
+        "SUPABASE_URL not set and supabase_config.py missing"
     )
-    if not url or not key:
-        sys.exit(
-            "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required. "
-            f"Looked at {USER_CONFIG_ENV} and {PROJECT_ROOT / '.env'}. "
-            "If you just installed the plugin, run /granola-sync — it bootstraps the config on first run."
-        )
-    return url, key
+
+
+def get_anon_key() -> str:
+    return (
+        os.environ.get("SUPABASE_ANON_KEY")
+        or _DEFAULT_ANON
+        or sys.exit("Anon key missing — supabase_config.py not importable")
+    )
+
+
+def get_service_role_key() -> str | None:
+    """Return service role key if available (admin mode). Never required."""
+    return os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+
+
+def load_session() -> dict | None:
+    if not USER_SESSION_FILE.exists():
+        return None
+    try:
+        return json.loads(USER_SESSION_FILE.read_text())
+    except Exception:
+        return None
+
+
+def save_session(access_token: str, refresh_token: str, email: str) -> None:
+    USER_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    USER_SESSION_FILE.write_text(json.dumps({
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "email": email,
+        "saved_at": datetime.now(timezone.utc).isoformat(),
+    }, indent=2))
+    try:
+        os.chmod(USER_SESSION_FILE, 0o600)
+    except OSError:
+        pass
+
+
+def build_client() -> Client:
+    """Build an authenticated Supabase client.
+
+    Three modes, in priority order:
+    1. SUPABASE_SERVICE_ROLE_KEY in env → admin client (bypasses RLS).
+    2. session.json present → anon client + restored user session (subject to RLS).
+    3. Neither → anon client with no session (denied by RLS for everything).
+       Caller should detect this and trigger the OTP flow.
+    """
+    load_env_files()
+    url = get_supabase_url()
+    service_key = get_service_role_key()
+
+    if service_key:
+        return create_client(url, service_key)
+
+    sb: Client = create_client(url, get_anon_key())
+    session = load_session()
+    if session:
+        try:
+            sb.auth.set_session(session["access_token"], session["refresh_token"])
+        except Exception as exc:
+            # Token expired and refresh failed — let the caller surface the OTP flow.
+            print(f"warning: stored session invalid ({exc}); re-auth needed", file=sys.stderr)
+    return sb
+
+
+def cmd_auth_start(email: str):
+    """Send a 6-digit OTP to the teammate's email."""
+    if "@" not in email:
+        sys.exit(f"Invalid email: {email}")
+    url = get_supabase_url()
+    sb: Client = create_client(url, get_anon_key())
+    sb.auth.sign_in_with_otp({
+        "email": email,
+        "options": {"should_create_user": True},
+    })
+    print(json.dumps({"sent_to": email, "next": "check inbox for 6-digit code"}, indent=2))
+
+
+def cmd_auth_verify(email: str, code: str):
+    """Verify the OTP code and persist the resulting session."""
+    url = get_supabase_url()
+    sb: Client = create_client(url, get_anon_key())
+    result = sb.auth.verify_otp({
+        "email": email,
+        "token": code,
+        "type": "email",
+    })
+    if not result.session:
+        sys.exit("OTP verification failed: no session returned")
+    save_session(result.session.access_token, result.session.refresh_token, email)
+    print(json.dumps({
+        "authenticated_as": email,
+        "session_file": str(USER_SESSION_FILE),
+        "status": "ready — re-run /granola-sync to start syncing",
+    }, indent=2))
+
+
+def cmd_auth_status():
+    """Report current auth state without modifying anything."""
+    session = load_session()
+    if not session:
+        print(json.dumps({"authenticated": False, "session_file": None}, indent=2))
+        return
+    print(json.dumps({
+        "authenticated": True,
+        "email": session.get("email"),
+        "session_file": str(USER_SESSION_FILE),
+        "saved_at": session.get("saved_at"),
+        "admin_mode": bool(get_service_role_key()),
+    }, indent=2))
 
 
 def team_domains_from_env() -> list[str]:
@@ -454,8 +568,22 @@ def main():
         cli_exclude_phrases = [p.strip().lower() for p in args[i + 1].split(",") if p.strip()]
         args = args[:i] + args[i + 2:]
 
-    url, key = load_env()
-    sb: Client = create_client(url, key)
+    # Auth subcommands don't need an authenticated client — they handle creation themselves.
+    if args and args[0] == "--auth-start":
+        if len(args) < 2:
+            sys.exit("usage: sync.py --auth-start <email>")
+        cmd_auth_start(args[1])
+        return
+    if args and args[0] == "--auth-verify":
+        if len(args) < 3:
+            sys.exit("usage: sync.py --auth-verify <email> <code>")
+        cmd_auth_verify(args[1], args[2])
+        return
+    if args and args[0] == "--auth-status":
+        cmd_auth_status()
+        return
+
+    sb: Client = build_client()
 
     if args and args[0] == "--list-synced":
         cmd_list_synced(sb)
@@ -468,7 +596,10 @@ def main():
         sys.exit(
             "usage: sync.py <payload.json> [--exclude 'phrase1,phrase2']  |  "
             "sync.py --list-synced  |  "
-            "sync.py --add-teammate <email> [name]"
+            "sync.py --add-teammate <email> [name]  |  "
+            "sync.py --auth-start <email>  |  "
+            "sync.py --auth-verify <email> <code>  |  "
+            "sync.py --auth-status"
         )
     payload = json.loads(Path(args[0]).read_text())
 

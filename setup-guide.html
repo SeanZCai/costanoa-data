@@ -208,7 +208,7 @@
   the teammate who synced it, so we can slice the data by VC.
 </p>
 <p>
-  Setup is now <strong>two commands and one paste</strong> — the plugin handles everything else.
+  Setup is now <strong>two commands and one emailed code</strong> — no keys are ever shared. You authenticate as yourself via Supabase Email OTP, and the database enforces who can see and write what.
 </p>
 
 <h2>Before you start</h2>
@@ -216,7 +216,7 @@
   <li><a href="https://claude.com/claude-code">Claude Code</a> installed (<code>brew install --cask claude</code>)</li>
   <li>Your Granola account connected as an integration in Claude (Settings → Integrations → Granola)</li>
   <li>Python 3.10+ on your laptop (<code>python3 --version</code> should show 3.10 or higher)</li>
-  <li>Your Supabase keys from Sean (sent via 1Password — don't put them in Slack)</li>
+  <li>Access to your <code>@costanoa.vc</code> or <code>@costanoavc.com</code> email inbox (for the one-time login code)</li>
 </ul>
 
 <h2>One-time setup</h2>
@@ -247,19 +247,22 @@
 <div class="step">
   <div class="step-head">
     <span class="step-num">3</span>
-    <span class="step-title">Run your first sync — paste keys when asked</span>
-    <span class="step-time">~3 min</span>
+    <span class="step-title">Run your first sync — confirm via email code</span>
+    <span class="step-time">~2 min</span>
   </div>
   <p>In Claude Code:</p>
 <pre><code>/granola-sync</code></pre>
-  <p>The first run detects you haven't been set up yet and prompts you for:</p>
-  <ul>
-    <li><strong>SUPABASE_URL</strong> — paste it from the 1Password entry Sean shared.</li>
-    <li><strong>SUPABASE_SERVICE_ROLE_KEY</strong> — same source.</li>
-  </ul>
-  <p>The plugin writes both to <code>~/.costanoa-data/.env</code> (chmod 600), creates a local venv at <code>~/.costanoa-data/.venv</code>, installs the deps, and proceeds with the sync. Subsequent runs skip all that and just sync.</p>
-  <div class="warn">
-    The service role key bypasses RLS. Once pasted, it lives only in <code>~/.costanoa-data/.env</code> on your laptop — never committed, never logged. If your laptop is compromised, ask Sean to rotate the key in Supabase.
+  <p>On first invocation the skill:</p>
+  <ol>
+    <li>Creates a local venv at <code>~/.costanoa-data/.venv</code> and installs Python deps.</li>
+    <li>Asks for your <strong>Costanoa email</strong> (<code>@costanoa.vc</code> or <code>@costanoavc.com</code>).</li>
+    <li>Triggers Supabase to send you a one-time 6-digit code. Subject line in your inbox is usually <em>"Your code is …"</em>.</li>
+    <li>Asks you to paste the code back into Claude. The skill verifies it and saves your session to <code>~/.costanoa-data/session.json</code>.</li>
+    <li>Proceeds with the sync.</li>
+  </ol>
+  <p>Subsequent runs skip all of this — the session refreshes silently. You only authenticate once.</p>
+  <div class="callout">
+    <strong>What you can and can't do:</strong> as an authenticated Costanoa user you can read every meeting in the knowledge base (it's shared) but you can only <em>create</em> meetings attributed to yourself. The database enforces this via Row Level Security — no admin keys live on your laptop.
   </div>
 </div>
 

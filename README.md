@@ -39,10 +39,20 @@ In Claude Code, run:
 /plugin install costanoa-data@costanoa-data
 ```
 
-That's it. The skills (`/granola-sync`, `/team-onboard`) auto-load. The first
-time you run `/granola-sync`, the skill prompts you for your Supabase URL and
-service-role key (Sean shares both via the team password manager), creates
-`~/.costanoa-data/.env` and a local venv, and proceeds with the sync.
+That's it. No keys to share. The skills (`/granola-sync`, `/team-onboard`)
+auto-load. The first time you run `/granola-sync`, the skill:
+
+1. Creates a local Python venv at `~/.costanoa-data/.venv` and installs deps.
+2. Asks for your `@costanoa.vc` email and sends a 6-digit code via Supabase
+   Email OTP.
+3. You paste the code; the resulting session is saved to
+   `~/.costanoa-data/session.json` (chmod 600). The session auto-refreshes;
+   you only authenticate once.
+4. Sync proceeds.
+
+Row Level Security policies (see `supabase/migrations/0002_rls.sql`) enforce
+that you can only insert meetings attributed to your own `team_members` row,
+and that only authenticated Costanoa users can read anything.
 
 Prerequisites: Claude Code installed, the Granola integration connected
 (Settings → Integrations → Granola), and Python 3.10+ on the path.

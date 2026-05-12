@@ -1,7 +1,7 @@
 {
   "name": "costanoa-data",
-  "version": "0.1.0",
-  "description": "Costanoa Ventures shared meeting knowledge base. Syncs Granola notes to a team-shared Supabase, attributed per VC. Includes /granola-sync and /team-onboard skills.",
+  "version": "0.2.0",
+  "description": "Costanoa Ventures shared meeting knowledge base. Syncs Granola notes to a team-shared Supabase, attributed per VC. Anon-key + Email OTP auth; per-user JWT scoped by Row Level Security. No admin keys distributed.",
   "author": {
     "name": "Costanoa Ventures",
     "email": "sean@costanoa.vc"
