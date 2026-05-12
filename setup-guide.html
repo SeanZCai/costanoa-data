@@ -196,177 +196,136 @@
 
 <header class="hero">
   <div class="eyebrow">Costanoa Internal · Knowledge Base</div>
-  <h1>Send your Granola meeting notes to the team knowledge base</h1>
-  <p class="lede">One-time setup, then your meeting notes upload automatically every morning. Notes you sync are attributed to you — so queries like "all the cybersecurity founders Greg has met" actually work.</p>
+  <h1>Add your Granola notes to the team knowledge base</h1>
+  <p class="lede">Five minutes to set up, then it runs itself. You never paste a password, an API key, or any other kind of secret. The one thing you'll be asked for is a six-digit code we email you.</p>
 </header>
 
-<h2>What this does</h2>
+<h2>What this is</h2>
 <p>
-  Every Granola meeting note you take ends up in a shared Supabase database, structured into
-  <code>companies</code>, <code>individuals</code>, and <code>meetings</code> tables. Future agents
-  query that database to answer questions across the whole team's coverage. Each row is tagged with
-  the teammate who synced it, so we can slice the data by VC.
+  We now have a shared database of every meeting Costanoa takes: summaries, attendees, the companies. Once you're set up, anything you record in Granola lands in there every morning, tagged with your name. Which means we can finally ask Claude things like <em>"which cybersecurity founders has Tony met in the last quarter?"</em> and get a real answer, instead of all of us scrolling through Granola separately.
 </p>
 <p>
-  Setup is now <strong>two commands and one emailed code</strong> — no keys are ever shared. You authenticate as yourself via Supabase Email OTP, and the database enforces who can see and write what.
+  Your part is the three steps below. After that you can forget this exists.
 </p>
 
-<h2>Before you start</h2>
+<h2>You'll need</h2>
 <ul>
-  <li><a href="https://claude.com/claude-code">Claude Code</a> installed (<code>brew install --cask claude</code>)</li>
-  <li>Your Granola account connected as an integration in Claude (Settings → Integrations → Granola)</li>
-  <li>Python 3.10+ on your laptop (<code>python3 --version</code> should show 3.10 or higher)</li>
-  <li>Access to your <code>@costanoa.vc</code> or <code>@costanoavc.com</code> email inbox (for the one-time login code)</li>
+  <li><a href="https://claude.com/claude-code">Claude Code</a> on your laptop. The desktop app, not the website.</li>
+  <li>Granola already connected inside Claude. Go to <strong>Settings → Integrations → Granola</strong> in Claude Code and hit Connect.</li>
+  <li>Access to your <strong>@costanoa.vc</strong> inbox. We email a one-time code there.</li>
 </ul>
+<p>Nothing else. No password, no API key, no token. If anything asks for one of those, it's a bug. DM Sean.</p>
 
-<h2>One-time setup</h2>
+<h2>Setup: three things to type into Claude Code</h2>
 
 <div class="step">
   <div class="step-head">
     <span class="step-num">1</span>
     <span class="step-title">Install the plugin</span>
-    <span class="step-time">~30 sec</span>
+    <span class="step-time">~30 seconds</span>
   </div>
-  <p>In Claude Code, run these two slash commands:</p>
-<pre><code>/plugin marketplace add SeanZCai/costanoa-data
-/plugin install costanoa-data@costanoa-data</code></pre>
-  <p>This pulls down the <code>granola-sync</code> and <code>team-onboard</code> skills plus the Python sync script. The repo is private, so Claude Code will use your GitHub auth.</p>
+  <p>Open Claude Code. In the chat box, paste this and hit enter:</p>
+<pre><code>/plugin marketplace add SeanZCai/costanoa-data</code></pre>
+  <p>Then this:</p>
+<pre><code>/plugin install costanoa-data@costanoa-data</code></pre>
+  <p>You should see a confirmation. If Claude asks you to authorize GitHub, do it. The repo is private, and that's how it checks that you're on the team.</p>
+  <p>After install, the new commands show up as <code>/costanoa-data:granola-sync</code> and <code>/costanoa-data:team-onboard</code>. Most of the time the short form <code>/granola-sync</code> works too. If the commands don't seem to register right away, run <code>/reload-plugins</code> once and they'll appear.</p>
 </div>
 
 <div class="step">
   <div class="step-head">
     <span class="step-num">2</span>
-    <span class="step-title">Verify Granola is connected</span>
-    <span class="step-time">~30 sec</span>
+    <span class="step-title">Confirm Granola is connected</span>
+    <span class="step-time">~10 seconds</span>
   </div>
-  <p>In Claude Code, ask:</p>
+  <p>In the chat box, type:</p>
 <pre><code>who am I signed in as on Granola?</code></pre>
-  <p>Should return your <code>@costanoa.vc</code> email. If not, connect Granola in Settings → Integrations.</p>
+  <p>Claude should reply with your <strong>@costanoa.vc</strong> email. If it says nothing back, or shows a different email, head to <strong>Settings → Integrations → Granola</strong> in Claude Code and reconnect using your Costanoa Google account.</p>
 </div>
 
 <div class="step">
   <div class="step-head">
     <span class="step-num">3</span>
-    <span class="step-title">Run your first sync — confirm via email code</span>
-    <span class="step-time">~2 min</span>
+    <span class="step-title">Run your first sync (the email-code part)</span>
+    <span class="step-time">~2 to 5 minutes</span>
   </div>
-  <p>In Claude Code:</p>
+  <p>Type:</p>
 <pre><code>/granola-sync</code></pre>
-  <p>On first invocation the skill:</p>
+  <p>Six things happen, in order:</p>
   <ol>
-    <li>Creates a local venv at <code>~/.costanoa-data/.venv</code> and installs Python deps.</li>
-    <li>Asks for your <strong>Costanoa email</strong> (<code>@costanoa.vc</code> or <code>@costanoavc.com</code>).</li>
-    <li>Triggers Supabase to send you a one-time 6-digit code. Subject line in your inbox is usually <em>"Your code is …"</em>.</li>
-    <li>Asks you to paste the code back into Claude. The skill verifies it and saves your session to <code>~/.costanoa-data/session.json</code>.</li>
-    <li>Proceeds with the sync.</li>
+    <li>Claude installs some helper files in the background. You'll see messages like "creating venv" or "installing dependencies." This takes about half a minute, and only happens on the first run.</li>
+    <li>Claude asks: <em>"What's your Costanoa email?"</em> Type in your <code>@costanoa.vc</code> address.</li>
+    <li>Claude tells you to check your inbox. Supabase has just emailed you a code.</li>
+    <li>Open the email. Subject line is usually <em>"Your code is XXXXXX"</em>. If it isn't there in half a minute, check spam.</li>
+    <li>Copy the six digits, paste them into Claude.</li>
+    <li>Claude says "authenticated, ready" and starts pulling your last 30 days of meetings. That takes another minute or three depending on how many you have.</li>
   </ol>
-  <p>Subsequent runs skip all of this — the session refreshes silently. You only authenticate once.</p>
+  <p>When it finishes you'll see something like:</p>
+<pre><code>Synced 47 new meetings into Supabase (latest: May 10, 2026).</code></pre>
   <div class="callout">
-    <strong>What you can and can't do:</strong> as an authenticated Costanoa user you can read every meeting in the knowledge base (it's shared) but you can only <em>create</em> meetings attributed to yourself. The database enforces this via Row Level Security — no admin keys live on your laptop.
+    You only do the email-code thing once. The login stays on your laptop, and the daily auto-sync (next section) uses it without bothering you.
   </div>
 </div>
 
-<div class="callout">
-  <strong>Heads up:</strong> the first sync is the slow one — it pulls all of your meetings in the last 30 days. Daily runs after that only fetch net-new and take well under a minute. To backfill further, say <em>"sync the last 6 months"</em>.
-</div>
-
-<h2>Make it daily</h2>
-<p>Pick one. You don't need both.</p>
-
-<div class="options">
-  <div class="option preferred">
-    <h3>Option A — <code>/schedule</code><span class="tag">recommended</span></h3>
-    <p>Runs in the cloud. Your laptop doesn't need to be on.</p>
-    <p>In Claude Code:</p>
+<h2>Make it run every morning</h2>
+<p>Once your first manual sync worked, type this in Claude Code:</p>
 <pre><code>/schedule create daily at 7am: /granola-sync</code></pre>
-    <p>Manage with <code>/schedule list</code> and <code>/schedule delete &lt;id&gt;</code>.</p>
-  </div>
+<p>That's the whole automation. Starting the next morning, your meetings flow in at 7am. It runs in the cloud, so your laptop doesn't need to be on or awake.</p>
+<p>To check on it later, ask Claude <em>"show my scheduled jobs"</em>. To stop it, say <em>"delete my granola-sync schedule"</em>.</p>
 
-  <div class="option">
-    <h3>Option B — launchd (macOS)</h3>
-    <p>Runs locally each morning. Use this if you'd rather not keep Claude Code involved.</p>
-<pre><code>cp automation/launchd/vc.costanoa.granola-sync.plist \
-   ~/Library/LaunchAgents/
-launchctl load \
-   ~/Library/LaunchAgents/vc.costanoa.granola-sync.plist</code></pre>
-    <p>Fires daily at 7am local. Logs to <code>automation/launchd/sync.log</code>. To stop, run <code>launchctl unload</code> on the same path.</p>
-  </div>
-</div>
+<h2>How to know it worked</h2>
+<p>Fastest check: ask Claude <em>"how many of my meetings are in the Costanoa knowledge base?"</em>. The number should roughly match your Granola count.</p>
+<p>You can also run <code>/granola-sync</code> a second time right after the first. It should report "0 new meetings", which is the system correctly noticing nothing has changed since the last run.</p>
 
-<h2>How to verify it's working</h2>
-<ol>
-  <li>After the first sync, open the <a href="https://supabase.com/dashboard/project/lgnejbduwpytgbvtnhpr/editor">Supabase table editor</a> and look at <code>meetings</code>. You should see your meetings, with <code>created_by_team_member_id</code> pointing at your row in <code>team_members</code>.</li>
-  <li>Run <code>/granola-sync</code> a second time immediately — it should report <em>"0 new meetings"</em>. That's idempotency working.</li>
-  <li>Spot-check a meeting's <code>summary_md</code> against what you see in Granola. Should match.</li>
-</ol>
-
-<h2>What gets sent</h2>
+<h2>What ends up in the database</h2>
 <ul>
-  <li>Meeting title, date, AI-generated summary, and full verbatim transcript</li>
-  <li>Attendees (name + email) and their inferred company affiliations</li>
-  <li>For 1-on-1s where Granola only captured you, a low-confidence inference of the counterparty from the meeting title (so "Jigsaw &lt;&gt; Sean" becomes a queryable link to Jigsaw)</li>
+  <li>The meeting title, the date, and the AI summary Granola wrote for it.</li>
+  <li>The attendees, plus whatever companies we can figure out they belong to.</li>
+  <li>For 1-on-1s where Granola only captured you on the invite, we take a best guess at the other person from the meeting title. So "Jigsaw &lt;&gt; Sean" still becomes a link to Jigsaw, just at lower confidence.</li>
 </ul>
-<p>Meetings titled <code>"Busy"</code> or starting with <code>"Busy "</code> are skipped — they're calendar placeholders, not real meetings.</p>
+<p>Calendar holds and "Busy" placeholders get skipped automatically. Only real meetings end up in there.</p>
 
-<h2>Joining the team roster</h2>
+<h2>Keeping certain meetings private</h2>
 <p>
-  Your first <code>/granola-sync</code> automatically registers you in the team's <code>team_members</code> table — as long as your Granola account is on a <code>@costanoa.vc</code> or <code>@costanoavc.com</code> email. Future "all founders X has met" queries find you from then on.
-</p>
-<p>
-  If you have two Costanoa emails (e.g. one on each domain), they'll merge into a single profile by matching your full name. Just make sure your Granola account name matches what's in the team roster.
-</p>
-<div class="callout">
-  <strong>Helping a new hire onboard?</strong> Use <code>/team-onboard newhire@costanoa.vc "Full Name"</code> in Claude Code to register them before they themselves have set anything up.
-</div>
-
-<h2>Keeping certain meetings out of the knowledge base</h2>
-<p>
-  Some meetings shouldn't end up in the shared DB — confidential board sessions, therapy, performance reviews, or just internal projects you don't want indexed. The sync supports a phrase-based exclusion filter that case-insensitively matches against the meeting's <strong>title, summary, and transcript</strong>. If any configured phrase appears anywhere in those three fields, that meeting is silently skipped.
+  Some meetings have no business being in the shared DB. Board sessions, performance reviews, confidential LP conversations, anything you want to keep just for yourself. You can tell the sync to skip those in two ways.
 </p>
 
-<h3>For your daily automated uploads (set once)</h3>
-<p>
-  Edit <code>.env</code> and set <code>EXCLUDE_PHRASES</code> to a comma-separated list. This applies to <em>every</em> sync — manual, <code>/schedule</code> cloud cron, and the <code>launchd</code> fallback.
-</p>
-<pre><code># In .env
-EXCLUDE_PHRASES=board meeting,confidential,personal therapy,perf review</code></pre>
-<p>
-  No quotes, no spaces around the commas. Leave it empty (<code>EXCLUDE_PHRASES=</code>) for no defaults.
-</p>
+<h3>Skip them just this one time</h3>
+<p>Tell the skill what to drop when you run it:</p>
+<pre><code>/granola-sync excluding "board meeting", "perf review"</code></pre>
+<p>Any meeting whose title, summary, or transcript contains one of those phrases (case doesn't matter) gets dropped. The meeting stays in Granola, it just doesn't end up in Supabase.</p>
 
-<h3>For a one-off manual run</h3>
-<p>
-  Just say it inline when invoking the skill:
-</p>
-<pre><code>/granola-sync excluding "standard data", "investor diligence"</code></pre>
-<p>
-  These get merged with your <code>.env</code> defaults — the union applies. The skill drops matching meetings before they're even fetched from Granola (saves API calls), and <code>sync.py</code> re-checks at insertion time as a defense-in-depth backstop.
-</p>
+<h3>Skip them every time, forever</h3>
+<p>Tell Claude:</p>
+<pre><code>add "board meeting" and "perf review" to my granola exclusions permanently</code></pre>
+<p>That writes the phrases into a small config file on your laptop. The daily 7am sync picks them up automatically. You can list them, add more, or clear them later by asking Claude.</p>
 
 <div class="callout">
-  <strong>How aggressive is the match?</strong> Case-insensitive substring. <code>EXCLUDE_PHRASES=acme</code> drops a meeting titled "Acme Inc &lt;&gt; Sean" but also any meeting where the summary mentions "acme" in passing. Pick phrases specific enough to avoid false positives — <code>acme followup</code> or <code>acme deep dive</code> over just <code>acme</code>.
+  Be specific with phrases. "Acme" would skip anything that mentions Acme, even in passing. "Acme board meeting" or "Acme LP review" is safer.
 </div>
 
-<p>
-  The skip is silent in the DB — excluded meetings don't show up anywhere. The sync output JSON does log which IDs were excluded and which phrase matched, so you can verify after a run.
-</p>
+<h2>If something goes wrong</h2>
 
-<h2>Common issues</h2>
+<h3>"Claude doesn't seem to know who I am in Granola"</h3>
+<p>The Granola integration isn't connected. In Claude Code go to <strong>Settings → Integrations → Granola → Connect</strong> and sign in with your Costanoa Google account.</p>
 
-<h3>"Could not find the table 'public.meetings'"</h3>
-<p>The schema hasn't been applied to Supabase yet. Sean does this once for the team — ping him if you see this.</p>
+<h3>"I never got the 6-digit code"</h3>
+<p>Check spam first. If it's still not there after a minute, ask Claude to resend it. If that also fails, message Sean. It's most likely an email-config issue on the Supabase side, not anything you did.</p>
 
-<h3>"Email ... is not a Costanoa domain"</h3>
-<p>Your Granola account is signed in with a non-Costanoa email. Switch to your <code>@costanoa.vc</code> account in Granola and re-run.</p>
+<h3>"It says I'm not a Costanoa email"</h3>
+<p>Either you're signed into Granola with a non-Costanoa Google account, or you typed a personal email at the prompt. Run <code>/granola-sync</code> again and use your <strong>@costanoa.vc</strong> address.</p>
 
-<h3>"who am I signed in as on Granola?" returns nothing</h3>
-<p>The Granola integration isn't connected in Claude. Open Claude Code → Settings → Integrations → Granola → Connect.</p>
+<h3>"Python not found" or "Python 3.10+ required"</h3>
+<p>You don't have a recent enough Python installed. On a Mac, open Terminal and run <code>brew install python@3.12</code>. Then run <code>/granola-sync</code> again. If that's gibberish, ask Sean to walk you through it.</p>
 
-<h3>The launchd job doesn't fire</h3>
-<p>Check <code>which claude</code> on your laptop and compare to the path in the plist. Default is <code>/opt/homebrew/bin/claude</code> (Apple Silicon). Update <code>ProgramArguments</code> in the plist if your binary lives elsewhere.</p>
+<h3>"Plugin marketplace add failed"</h3>
+<p>You probably don't have read access to the private repo yet. Send Sean your GitHub username, he'll add you, and you can retry.</p>
+
+<h3>Anything else weird</h3>
+<p>Message Sean. Don't try to fix it yourself. If something is actually broken, it's more useful for him to see the original symptom than a patched-over version of it.</p>
 
 <footer>
-  Questions, please send them to Sean. Anything weird in the data, also Sean.
+  Questions go to Sean. So do bugs, weird data, and anything you wish this did but doesn't.
 </footer>
 
 </div>
