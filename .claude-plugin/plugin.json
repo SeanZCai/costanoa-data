@@ -1,7 +1,7 @@
 {
   "name": "costanoa-data",
-  "version": "0.3.0",
-  "description": "Costanoa Ventures shared meeting knowledge base. Three skills: /granola-sync (Granola → Supabase nightly), /team-onboard (register a new VC), /costanoa-search (query the shared DB). Anon-key + Email OTP auth; per-user JWT scoped by Row Level Security. No admin keys distributed.",
+  "version": "0.4.0",
+  "description": "Costanoa Ventures shared meeting knowledge base. Four skills: /granola-sync (incremental Granola → Supabase), /granola-sync-all (full historical backfill), /team-onboard (register a new VC), /costanoa-search (query the shared DB). Anon-key + Email OTP auth; per-user JWT scoped by Row Level Security. No admin keys distributed.",
   "author": {
     "name": "Costanoa Ventures",
     "email": "sean@costanoa.vc"

@@ -304,6 +304,57 @@
   Be specific with phrases. "Acme" would skip anything that mentions Acme, even in passing. "Acme board meeting" or "Acme LP review" is safer.
 </div>
 
+<h2>Things you can ask Claude to do</h2>
+<p>
+  Once you're set up, you don't have to remember slash commands. Anything in plain English works too. Here's the menu of what's possible, grouped by what you're trying to do.
+</p>
+
+<h3>Sync something other than the default</h3>
+<p>The default <code>/granola-sync</code> pulls the last 30 days. To change that:</p>
+<ul>
+  <li><em>"/granola-sync-all"</em> pulls your entire Granola history in one go. Run this once when you first install the plugin so the team's database has all your past meetings, not just the last month. After that the daily sync takes over.</li>
+  <li><em>"sync the last six months"</em> backfills further than the default 30 days without going all the way back. Takes longer the first time, then it's incremental again.</li>
+  <li><em>"sync my meetings since March"</em> works the same way with a date.</li>
+  <li><em>"/granola-sync excluding 'board meeting'"</em> drops anything matching that phrase just for this one run.</li>
+  <li><em>"add 'LP commitments' to my granola exclusions permanently"</em> writes the phrase into your config so the daily auto-sync picks it up forever. You can also ask <em>"list my granola exclusions"</em> or <em>"remove 'LP commitments' from my exclusions"</em>.</li>
+</ul>
+
+<h3>Ask questions about anyone's meetings, not just your own</h3>
+<p>This is the part that actually pays off. You can query everything the whole partnership has met with. A few question shapes that work well:</p>
+<ul>
+  <li><em>"how many meetings are in our knowledge base?"</em></li>
+  <li><em>"when did Sean last meet someone from Jigsaw?"</em></li>
+  <li><em>"which cybersecurity founders has Tony met this quarter?"</em></li>
+  <li><em>"show me everything we have on Vaibhav Dixit"</em></li>
+  <li><em>"what's the most-discussed company in our notes?"</em></li>
+  <li><em>"summarize Sean's conversation with Aurelia at Scale"</em></li>
+  <li><em>"pull up the OneFinnet followup meeting"</em></li>
+  <li><em>"how many meetings have we had with people from Anthropic?"</em></li>
+</ul>
+<p>Under the hood Claude routes these to <code>/costanoa-data:costanoa-search</code>, but you never type that. Just ask the question.</p>
+
+<h3>Manage the morning schedule</h3>
+<ul>
+  <li><em>"/schedule create daily at 7am: /granola-sync"</em> sets up the auto-sync (you did this in setup).</li>
+  <li><em>"show my scheduled jobs"</em> lists what's currently running.</li>
+  <li><em>"delete my granola-sync schedule"</em> stops the daily run.</li>
+  <li><em>"change my granola sync to 9am"</em> shifts the timing.</li>
+</ul>
+
+<h3>Register a new teammate before they're set up</h3>
+<p>
+  Anyone who runs <code>/granola-sync</code> with their Costanoa email gets auto-registered. So most of the time you don't have to think about onboarding. The exception is when you want a new hire's name to appear in the knowledge base before they've installed the plugin themselves. In that case:
+</p>
+<pre><code>/team-onboard newhire@costanoa.vc "Full Name"</code></pre>
+<p>This pre-creates their row so older meetings where they were already an attendee get correctly tagged with <code>is_team_member</code>.</p>
+
+<h3>Sanity-check what's there</h3>
+<ul>
+  <li><em>"how many of my meetings are in the database?"</em> compares your sync count against Granola.</li>
+  <li><em>"who synced the most meetings on the team?"</em> shows the per-VC counts.</li>
+  <li><em>"when was the last sync run for me?"</em> reads your sync state.</li>
+</ul>
+
 <h2>If something goes wrong</h2>
 
 <h3>"Claude doesn't seem to know who I am in Granola"</h3>
