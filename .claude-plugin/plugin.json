@@ -1,7 +1,7 @@
 {
   "name": "costanoa-data",
-  "version": "0.4.0",
-  "description": "Costanoa Ventures shared meeting knowledge base. Four skills: /granola-sync (incremental Granola → Supabase), /granola-sync-all (full historical backfill), /team-onboard (register a new VC), /costanoa-search (query the shared DB). Anon-key + Email OTP auth; per-user JWT scoped by Row Level Security. No admin keys distributed.",
+  "version": "0.5.0",
+  "description": "Costanoa Ventures shared meeting knowledge base. Source-agnostic at the data layer: same tables ingest Granola, Google Docs, handwritten notes, and other artifact types under different source values. Current skills are Granola-focused (granola-sync, granola-sync-all, team-onboard, costanoa-search); future ingestion paths plug into the same sync.py via a payload-level source field. Anon-key + Email OTP auth; per-user JWT scoped by Row Level Security. No admin keys distributed.",
   "author": {
     "name": "Costanoa Ventures",
     "email": "sean@costanoa.vc"

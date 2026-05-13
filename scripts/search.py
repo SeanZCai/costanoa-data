@@ -111,6 +111,8 @@ def cmd_meetings(args):
             return _emit({"query_type": "meetings", "count": 0, "results": []}, args.format)
         q = q.in_("id", list(candidate_ids))
 
+    if args.source:
+        q = q.eq("source", args.source)
     if args.since:
         q = q.gte("meeting_date", args.since)
     if args.until:
@@ -220,10 +222,25 @@ def cmd_meeting(args):
 
 def cmd_stats(args):
     sb = build_client()
-    total_meetings = sb.table("meetings").select("id", count="exact").eq("source", "granola").execute().count
+
+    # Source filter: if --source given, scope counts to that source. Otherwise
+    # count across all sources AND include a per-source breakdown.
+    source = getattr(args, "source", None)
+
+    meetings_q = sb.table("meetings").select("id", count="exact")
+    if source:
+        meetings_q = meetings_q.eq("source", source)
+    total_meetings = meetings_q.execute().count
+
     total_companies = sb.table("companies").select("id", count="exact").execute().count
     total_individuals = sb.table("individuals").select("id", count="exact").execute().count
     total_team = sb.table("team_members").select("id", count="exact").execute().count
+
+    # Per-source breakdown (always useful once a second source lands).
+    src_rows = sb.table("meetings").select("source").execute().data or []
+    by_source = {}
+    for row in src_rows:
+        by_source[row["source"]] = by_source.get(row["source"], 0) + 1
 
     # Top companies by meeting count.
     mc = sb.table("meeting_companies").select("company_id").execute().data or []
@@ -237,8 +254,11 @@ def cmd_stats(args):
         cmap = {c["id"]: c["name"] for c in cs}
         top_companies = [{"name": cmap.get(cid), "meeting_count": counts[cid]} for cid in top_ids]
 
-    # Meetings per VC.
-    mt = sb.table("meetings").select("created_by_team_member_id").eq("source", "granola").execute().data or []
+    # Meetings per VC (respects source filter if set).
+    mt_q = sb.table("meetings").select("created_by_team_member_id")
+    if source:
+        mt_q = mt_q.eq("source", source)
+    mt = mt_q.execute().data or []
     per_vc = {}
     for row in mt:
         per_vc[row["created_by_team_member_id"]] = per_vc.get(row["created_by_team_member_id"], 0) + 1
@@ -256,12 +276,14 @@ def cmd_stats(args):
 
     _emit({
         "query_type": "stats",
+        "source_filter": source,
         "totals": {
             "meetings": total_meetings,
             "companies": total_companies,
             "individuals": total_individuals,
             "team_members": total_team,
         },
+        "meetings_by_source": by_source,
         "top_companies": top_companies,
         "meetings_by_vc": by_vc,
     }, args.format)
@@ -287,6 +309,7 @@ def main():
     m.add_argument("--until", help="Latest meeting_date (YYYY-MM-DD)")
     m.add_argument("--text", help="Substring match on title + summary")
     m.add_argument("--tag", help="Filter by company tag (e.g. cybersecurity)")
+    m.add_argument("--source", help="Filter by ingestion source (granola, gdoc, ...)")
     m.add_argument("--limit", type=int, default=20)
     m.add_argument("--format", choices=["json", "table"], default="json")
     m.set_defaults(func=cmd_meetings)
@@ -314,6 +337,7 @@ def main():
     md.set_defaults(func=cmd_meeting)
 
     s = sub.add_parser("stats", help="High-level counts and top entities")
+    s.add_argument("--source", help="Scope counts to a single source (granola, gdoc, ...). Omit to count across all sources.")
     s.add_argument("--format", choices=["json", "table"], default="json")
     s.set_defaults(func=cmd_stats)
 

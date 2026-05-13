@@ -340,7 +340,9 @@ def upsert_individual(sb: Client, name: str, email: str | None, company_id: str 
     return inserted.data[0]["id"]
 
 
-def insert_meeting_if_new(sb: Client, meeting: dict, team_member_id: str) -> tuple[str, bool]:
+def insert_meeting_if_new(
+    sb: Client, meeting: dict, team_member_id: str, source: str = "granola"
+) -> tuple[str, bool]:
     """Insert a meeting row only if its (source, external_id) hasn't been seen.
 
     Returns (meeting_id, is_new). When the row already exists we return its id
@@ -348,12 +350,17 @@ def insert_meeting_if_new(sb: Client, meeting: dict, team_member_id: str) -> tup
     and avoiding any churn on `ingested_at`, `summary_md`, `transcript`, etc.
     This is the duplicate-prevention contract: re-running, or two VCs syncing
     the same meeting, cannot overwrite the canonical row.
+
+    `source` defaults to 'granola' for backward compatibility, but can be
+    anything ('gdoc', 'handwritten', 'email_thread', ...) per payload.
+    The per-meeting `source` field on the meeting dict overrides this default.
     """
+    actual_source = meeting.get("source") or source
     external_id = meeting["external_id"]
     existing = (
         sb.table("meetings")
         .select("id")
-        .eq("source", "granola")
+        .eq("source", actual_source)
         .eq("external_id", external_id)
         .limit(1)
         .execute()
@@ -361,7 +368,7 @@ def insert_meeting_if_new(sb: Client, meeting: dict, team_member_id: str) -> tup
     if existing.data:
         return existing.data[0]["id"], False
     row = {
-        "source": "granola",
+        "source": actual_source,
         "external_id": external_id,
         "title": meeting["title"],
         "meeting_date": meeting["meeting_date"],
@@ -411,10 +418,14 @@ def get_team_member_emails(sb: Client) -> set[str]:
     return {row["email"].lower() for row in (res.data or [])}
 
 
-def update_sync_state(sb: Client, team_member_id: str, last_meeting_date: str | None):
+def update_sync_state(
+    sb: Client, team_member_id: str, last_meeting_date: str | None, source: str = "granola"
+):
+    """sync_state is keyed on (team_member_id, source), so each ingestion
+    source maintains its own cursor independently."""
     row = {
         "team_member_id": team_member_id,
-        "source": "granola",
+        "source": source,
         "last_synced_at": datetime.now(timezone.utc).isoformat(),
     }
     if last_meeting_date:
@@ -428,8 +439,9 @@ def process_meeting(
     team_member_id: str,
     team_emails: set[str],
     team_domains: list[str],
+    source: str = "granola",
 ) -> dict:
-    meeting_id, is_new = insert_meeting_if_new(sb, meeting, team_member_id)
+    meeting_id, is_new = insert_meeting_if_new(sb, meeting, team_member_id, source=source)
     if not is_new:
         # First uploader wins. Don't re-process attendees/companies on a row
         # that's already canonical — the original sync set those correctly,
@@ -514,13 +526,17 @@ def process_meeting(
     }
 
 
-def cmd_list_synced(sb: Client):
-    """Print JSON list of Granola external_ids already in the meetings table.
+def cmd_list_synced(sb: Client, source: str = "granola"):
+    """Print JSON list of external_ids already in the meetings table for a
+    given source. Used by ingestion skills to diff before re-fetching content.
 
-    Used by the /granola-sync skill to diff before fetching transcripts —
-    avoids re-fetching ~100KB of transcript text per already-synced meeting.
+    Pass --source <name> to filter; defaults to 'granola' for backwards compat.
+    Pass --source '*' to list every external_id across all sources.
     """
-    res = sb.table("meetings").select("external_id").eq("source", "granola").execute()
+    q = sb.table("meetings").select("external_id, source")
+    if source and source != "*":
+        q = q.eq("source", source)
+    res = q.execute()
     ids = [row["external_id"] for row in (res.data or [])]
     print(json.dumps(ids))
 
@@ -586,7 +602,13 @@ def main():
     sb: Client = build_client()
 
     if args and args[0] == "--list-synced":
-        cmd_list_synced(sb)
+        # Accept optional --source flag; default 'granola'.
+        cli_source = "granola"
+        if "--source" in args:
+            i = args.index("--source")
+            if i + 1 < len(args):
+                cli_source = args[i + 1]
+        cmd_list_synced(sb, source=cli_source)
         return
     if args and args[0] == "--add-teammate":
         cmd_add_teammate(sb, args[1:])
@@ -595,13 +617,14 @@ def main():
     if len(args) != 1:
         sys.exit(
             "usage: sync.py <payload.json> [--exclude 'phrase1,phrase2']  |  "
-            "sync.py --list-synced  |  "
+            "sync.py --list-synced [--source NAME]  |  "
             "sync.py --add-teammate <email> [name]  |  "
             "sync.py --auth-start <email>  |  "
             "sync.py --auth-verify <email> <code>  |  "
             "sync.py --auth-status"
         )
     payload = json.loads(Path(args[0]).read_text())
+    payload_source = payload.get("source", "granola")
 
     tm = payload["team_member"]
     team_domains = team_domains_from_env()
@@ -646,7 +669,7 @@ def main():
             })
             continue
 
-        result = process_meeting(sb, m, team_member_id, team_emails, team_domains)
+        result = process_meeting(sb, m, team_member_id, team_emails, team_domains, source=payload_source)
         if result["is_new"]:
             new_count += 1
         else:
@@ -655,10 +678,11 @@ def main():
         if d and (not latest_meeting_date or d > latest_meeting_date):
             latest_meeting_date = d
 
-    update_sync_state(sb, team_member_id, latest_meeting_date)
+    update_sync_state(sb, team_member_id, latest_meeting_date, source=payload_source)
 
     print(json.dumps({
         "team_member_email": tm["email"],
+        "source": payload_source,
         "team_member_created": was_created,
         "alias_added": alias_added,
         "new_meetings": new_count,
