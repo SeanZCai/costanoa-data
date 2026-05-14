@@ -228,7 +228,7 @@
 <pre><code>/plugin marketplace add SeanZCai/costanoa-data</code></pre>
   <p>Then this:</p>
 <pre><code>/plugin install costanoa-data@costanoa-data</code></pre>
-  <p>You should see a confirmation. If Claude asks you to authorize GitHub, do it. The repo is private, and that's how it checks that you're on the team.</p>
+  <p>You should see a confirmation. No GitHub login is required — the repo is public. What gates this system is your Costanoa email at the OTP step, not who has the code.</p>
   <p>After install, the new commands show up as <code>/costanoa-data:granola-sync</code> and <code>/costanoa-data:team-onboard</code>. Most of the time the short form <code>/granola-sync</code> works too. If the commands don't seem to register right away, run <code>/reload-plugins</code> once and they'll appear.</p>
 </div>
 
@@ -369,7 +369,7 @@
 <p>You don't have a recent enough Python installed. On a Mac, open Terminal and run <code>brew install python@3.12</code>. Then run <code>/granola-sync</code> again. If that's gibberish, ask Sean to walk you through it.</p>
 
 <h3>"Plugin marketplace add failed"</h3>
-<p>You probably don't have read access to the private repo yet. Send Sean your GitHub username, he'll add you, and you can retry.</p>
+<p>The repo is public, so this shouldn't happen for auth reasons. If it does, check that you have <code>git</code> installed (<code>git --version</code> in Terminal — should print something). Most Macs already have it via Xcode Command Line Tools. If not: <code>xcode-select --install</code>.</p>
 
 <h3>Anything else weird</h3>
 <p>Message Sean. Don't try to fix it yourself. If something is actually broken, it's more useful for him to see the original symptom than a patched-over version of it.</p>
