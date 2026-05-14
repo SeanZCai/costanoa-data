@@ -280,7 +280,7 @@
 <ul>
   <li>The meeting title, the date, and the AI summary Granola wrote for it.</li>
   <li>The attendees, plus whatever companies we can figure out they belong to.</li>
-  <li>For 1-on-1s where Granola only captured you on the invite, we take a best guess at the other person from the meeting title. So "Jigsaw &lt;&gt; Sean" still becomes a link to Jigsaw, just at lower confidence.</li>
+  <li>For 1-on-1s where Granola only captured you on the invite, we take a best guess at the other person from the meeting title. So "Globex &lt;&gt; Sean" still becomes a link to Globex, just at lower confidence.</li>
 </ul>
 <p>Calendar holds and "Busy" placeholders get skipped automatically. Only real meetings end up in there.</p>
 
@@ -322,12 +322,12 @@
 <p>This is the part that actually pays off. You can query everything the whole partnership has met with. A few question shapes that work well:</p>
 <ul>
   <li><em>"how many meetings are in our knowledge base?"</em></li>
-  <li><em>"when did Sean last meet someone from Jigsaw?"</em></li>
+  <li><em>"when did Sean last meet someone from Globex?"</em></li>
   <li><em>"which cybersecurity founders has Tony met this quarter?"</em></li>
-  <li><em>"show me everything we have on Vaibhav Dixit"</em></li>
+  <li><em>"show me everything we have on Sam Cooper"</em></li>
   <li><em>"what's the most-discussed company in our notes?"</em></li>
-  <li><em>"summarize Sean's conversation with Aurelia at Scale"</em></li>
-  <li><em>"pull up the OneFinnet followup meeting"</em></li>
+  <li><em>"summarize Sean's conversation with Alex at Veridian"</em></li>
+  <li><em>"pull up the Initech followup meeting"</em></li>
   <li><em>"how many meetings have we had with people from Anthropic?"</em></li>
 </ul>
 <p>Under the hood Claude routes these to <code>/costanoa-data:costanoa-search</code>, but you never type that. Just ask the question.</p>

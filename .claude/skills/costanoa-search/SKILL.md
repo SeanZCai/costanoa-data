@@ -1,6 +1,6 @@
 ---
 name: costanoa-search
-description: Search the Costanoa Ventures shared meeting knowledge base on Supabase. Use when the user asks questions about meetings, founders, companies, or attendees that any team member has met — e.g. "which cybersecurity founders has Tony met this quarter?", "when did I last talk to Aurelia?", "list all meetings with Jigsaw", "stats on the knowledge base". Mirrors what the Granola connector does for personal Granola notes, but spans every VC's data across the partnership.
+description: Search the Costanoa Ventures shared meeting knowledge base on Supabase. Use when the user asks questions about meetings, founders, companies, or attendees that any team member has met — e.g. "which cybersecurity founders has Tony met this quarter?", "when did I last talk to Alex?", "list all meetings with Globex", "stats on the knowledge base". Mirrors what the Granola connector does for personal Granola notes, but spans every VC's data across the partnership.
 ---
 
 # /costanoa-search
@@ -32,8 +32,8 @@ The user will ask a natural-language question. Your job is to:
 Filters compose with AND. All filters except `--text` pre-filter at the database level (no risk of dropping older matches past the limit).
 
 - `--vc`: filter to one VC's synced meetings. Accepts email or alias. e.g. `--vc sean@costanoa.vc`.
-- `--company`: meetings linked to a company whose name contains this substring (case-insensitive). e.g. `--company Scale`.
-- `--attendee`: meetings where an attendee's name or email matches. e.g. `--attendee Aurelia` or `--attendee aurelia@scalevp.com`.
+- `--company`: meetings linked to a company whose name contains this substring (case-insensitive). e.g. `--company Veridian`.
+- `--attendee`: meetings where an attendee's name or email matches. e.g. `--attendee Alex` or `--attendee alex@veridianvp.com`.
 - `--since YYYY-MM-DD`, `--until YYYY-MM-DD`: meeting_date range.
 - `--text`: substring match against title + summary. Cheap fallback when the user's question doesn't map to a known entity.
 - `--tag`: company tag, e.g. `--tag cybersecurity`. (Tags are user-curated and currently sparse.)
@@ -47,10 +47,10 @@ Output shape:
   "count": 4,
   "results": [
     {
-      "id": "...", "title": "Jigsaw <> Sean", "meeting_date": "2026-05-09T...",
+      "id": "...", "title": "Globex <> Sean", "meeting_date": "2026-05-09T...",
       "synced_by": "sean@costanoa.vc", "synced_by_name": "Sean Cai",
       "summary_snippet": "first ~240 chars of summary_md",
-      "companies": [{"name": "Jigsaw", "tags": [], ...}],
+      "companies": [{"name": "Globex", "tags": [], ...}],
       "attendees": [{"name": "Sean Cai", "email": "sean@costanoa.vc", ...}]
     }
   ]
@@ -78,19 +78,19 @@ High-level counts (meetings, companies, individuals, team_members), top 10 compa
 | User says | You run |
 |-----------|---------|
 | "Which cybersecurity founders has Sean met this quarter?" | `search.py meetings --vc sean@costanoa.vc --tag cybersecurity --since 2026-04-01 --limit 50` |
-| "When did Tony last meet anyone from Mercor?" | `search.py meetings --vc tony@costanoa.vc --company Mercor --limit 5` |
-| "What did I discuss with Aurelia at Scale?" | `search.py meetings --attendee Aurelia --company Scale --limit 5` |
-| "List all meetings with Jigsaw" | `search.py meetings --company Jigsaw --limit 50` |
+| "When did Tony last meet anyone from Acme?" | `search.py meetings --vc tony@costanoa.vc --company Acme --limit 5` |
+| "What did I discuss with Alex at Veridian?" | `search.py meetings --attendee Alex --company Veridian --limit 5` |
+| "List all meetings with Globex" | `search.py meetings --company Globex --limit 50` |
 | "How many companies are in the DB?" | `search.py stats` (use the `totals.companies` field) |
-| "Find Vaibhav Dixit's profile" | `search.py people --name "Vaibhav Dixit"` |
+| "Find Sam Cooper's profile" | `search.py people --name "Sam Cooper"` |
 | "Show me meetings about post-training" | `search.py meetings --text "post-training" --limit 20` |
 | "What's the most-discussed company on the team?" | `search.py stats` (use the `top_companies` field) |
-| "Pull up the OneFinnet followup" | `search.py meeting 9e72978f-d1ac-4ec3-befe-074412ef78b2` if you have the id; otherwise `search.py meetings --company OneFinnet --text "followup" --limit 5` and then `search.py meeting <id>` once you've identified the right one |
+| "Pull up the Initech followup" | `search.py meeting 00000000-0000-0000-0000-000000000000` if you have the id; otherwise `search.py meetings --company Initech --text "followup" --limit 5` and then `search.py meeting <id>` once you've identified the right one |
 
 ## Calling pattern
 
 ```bash
-"$HOME/.costanoa-data/.venv/bin/python" "${CLAUDE_PLUGIN_ROOT:-/Users/seancai/CostanoaData}/scripts/search.py" meetings --company Jigsaw --limit 10
+"$HOME/.costanoa-data/.venv/bin/python" "${CLAUDE_PLUGIN_ROOT:-/Users/seancai/CostanoaData}/scripts/search.py" meetings --company Globex --limit 10
 ```
 
 ## After the result lands

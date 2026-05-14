@@ -115,13 +115,13 @@ where to_tsvector('english', summary_md) @@ plainto_tsquery('english', 'agent in
 order by rank desc
 limit 20;
 
--- Who has met Costanoa's portfolio company "Jigsaw"?
+-- Who has met Costanoa's portfolio company "Globex"?
 select distinct tm.name, count(m.*) as meetings
 from meetings m
 join meeting_companies mc on mc.meeting_id = m.id
 join companies c on c.id = mc.company_id
 join team_members tm on tm.id = m.created_by_team_member_id
-where c.name ilike 'jigsaw'
+where c.name ilike 'globex'
 group by tm.name
 order by meetings desc;
 ```

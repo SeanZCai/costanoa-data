@@ -132,7 +132,7 @@ Each meeting's `known_participants` is a comma-separated string. Per-attendee fo
 Examples (from real data):
 - `Sean (note creator) from Costanoa <sean@costanoa.vc>` → `{name:"Sean", is_note_creator:true, company_hint:"Costanoa", email:"sean@costanoa.vc"}`
 - `Antonibertel <antonibertel@gmail.com>` → `{name:"Antonibertel", company_hint:null, email:"antonibertel@gmail.com"}`
-- `Aurelia from Scalevp <aurelia@scalevp.com>` → `{name:"Aurelia", company_hint:"Scalevp", email:"aurelia@scalevp.com"}`
+- `Alex from Veridianvp <alex@veridianvp.com>` → `{name:"Alex", company_hint:"Veridianvp", email:"alex@veridianvp.com"}`
 
 Skip any "attendee" whose email contains `@resource.calendar.google.com` — those are Zoom-room calendar resources, not people.
 
@@ -142,16 +142,16 @@ For each meeting where the parsed `known_participants` resolves to exactly 1 rea
 
 ```json
 {
-  "counterparty_name": "Vaibhav Dixit",
+  "counterparty_name": "Sam Cooper",
   "counterparty_company": null,
   "confidence": 0.7
 }
 ```
 
 Heuristics:
-- `"Jigsaw <> Sean"` → counterparty_company="Jigsaw"
-- `"Vaibhav Dixit <> Sean"` → counterparty_name="Vaibhav Dixit"
-- `"Aurelia (Scale) <> Sean (Costanoa)"` → counterparty_name="Aurelia", counterparty_company="Scale"
+- `"Globex <> Sean"` → counterparty_company="Globex"
+- `"Sam Cooper <> Sean"` → counterparty_name="Sam Cooper"
+- `"Alex (Veridian) <> Sean (Costanoa)"` → counterparty_name="Alex", counterparty_company="Veridian"
 - `"Sean / Antoni"` → counterparty_name="Antoni"
 - Use the summary body to fill missing fields (e.g. if summary says "Antoni's company X", set company="X").
 - `confidence`: ~0.9 when title+summary both confirm; ~0.6 when only title hints; ~0.4 when guessing.
